@@ -1,15 +1,15 @@
 <?php
 /*
-Plugin Name: CiviEvent Widget
-Plugin URI: http://www.aghstrategies.com/civievent-widget
-Description: The CiviEvent Widget plugin displays public CiviCRM events in a widget.
-Version: 1.1
+Plugin Name: CiviCRM Contribution Page Widget
+Plugin URI: http://www.aghstrategies.com/civicontribute-widget
+Description: Displays contribution page widgets from CiviContribute as native WordPress widgets.
+Version: 0.1
 Author: AGH Strategies, LLC
 Author URI: http://aghstrategies.com/
 */
 
 /*
-		Copyright 2013-2015 AGH Strategies, LLC	(email : info@aghstrategies.com)
+		Copyright 2015 AGH Strategies, LLC (email : info@aghstrategies.com)
 
 		This program is free software; you can redistribute it and/or modify
 		it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,7 @@ add_action( 'widgets_init', function() {
 /**
  * The widget class.
  */
-class civievent_Widget extends WP_Widget {
+class civicontribute_Widget extends WP_Widget {
 
 	/**
 	 * Construct the basic widget object.
@@ -41,9 +41,9 @@ class civievent_Widget extends WP_Widget {
 	public function __construct() {
 		// Widget actual processes.
 		parent::__construct(
-			'civievent-widget', // Base ID
-			__( 'CiviEvent Widget', 'civievent-widget' ), // Name
-			array( 'description' => __( 'displays public CiviCRM events', 'civievent-widget' ) ) // Args.
+			'civicontribute-widget', // Base ID
+			__( 'CiviCRM Contribution Page Widget', 'civicontribute-widget' ), // Name
+			array( 'description' => __( 'Displays contribution page widgets from CiviContribute as native WordPress widgets.', 'civicontribute-widget' ) ) // Args.
 		);
 		if ( ! function_exists( 'civicrm_initialize' ) ) { return; }
 		civicrm_initialize();
@@ -79,8 +79,8 @@ class civievent_Widget extends WP_Widget {
 			'color_homepage_link' => array( 'value' => $widget->color_homepage_link ),
 		);
 		$template = CRM_Core_Smarty::singleton()->fetchWith( 'CRM/Contribute/Page/Widget.tpl', array( 'widgetId' => $widget->id, 'cpageId' => $widget->contribution_page_id, 'form' => $widgetVals ) );
-		// echo $template;
-		// print_r($widget);
+
+		$classes = 'widget civicontribute-widget civicontribute-widget-' . $widget->contribution_page_id;
 		echo "<div class=\"$classes\">$template</div>";
 
 	}
@@ -105,18 +105,18 @@ class civievent_Widget extends WP_Widget {
 				AND (cp.start_date <= now() OR cp.start_date is null)
 				AND (cp.end_date > now() OR cp.end_date is null)
 				';
-		$results = CRM_Core_DAO::executeQuery($sql);
+		$results = CRM_Core_DAO::executeQuery( $sql );
 		$widgets = array();
-		while ($results->fetch()) {
-			$widgets[$results->contribution_page_id] = $results->title;
+		while ( $results->fetch() ) {
+			$widgets[ $results->contribution_page_id ] = $results->title;
 		}
 		if ( count( $widgets ) ) {
 		?>
 		<p>
-		<label for="<?php echo $this->get_field_id( 'cpageId' ); ?>">Display state/province?</label>
+		<label for="<?php echo $this->get_field_id( 'cpageId' ); ?>"><?php _e( 'Select contribution page' ); ?></label>
 			<select name="<?php echo $this->get_field_name( 'cpageId' ); ?>" id="<?php echo $this->get_field_id( 'cpageId' ); ?>">
         <?php foreach ( $widgets as $cpId => $cpTitle ) : ?>
-          <option value="<?php print $cpId; ?>" <?php selected( $cpageId, $cpId ); ?>><?php print $cpTitle; ?></option>
+          <option value="<?php echo $cpId; ?>" <?php selected( $cpageId, $cpId ); ?>><?php echo $cpTitle; ?></option>
         <?php endforeach; ?>
 			</select>
 		</p>
